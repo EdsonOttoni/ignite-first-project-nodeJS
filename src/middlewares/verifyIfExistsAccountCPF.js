@@ -7,7 +7,7 @@ function verifyIfExistsAccountCPF(customers) {
     const customer = customers.find((customer) => customer.cpf === cpf)
   
     if(!customer){
-      return res.status(404).send('account not exists')
+      return res.status(404).send('você não tem permissão')
     }
 
     //define o cliente no requisição
