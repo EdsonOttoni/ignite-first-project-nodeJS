@@ -1,4 +1,4 @@
-# Configuração padrão do nodeJS
+# Chapter 1 da trilha nodeJS da rocket seat
 
 RUN
 
