@@ -1,15 +1,18 @@
 const express = require("express")
 const {v4:uuidV4} = require("uuid")
 const { verifyIfExistsAccountCPF } = require("./middlewares/verifyIfExistsAccountCPF")
+const { getBalance } = require("./utils/getBalance")
 
 const app = express()
 app.use(express.json())
 
 const customers = []
 
+//criando o client
 app.post("/account", (req, res) => {
   const {name, cpf} = req.body
 
+  //verificando se o cliente já não existe
   const customerAlreadyExists = customers.some((customer) => customer.cpf === cpf )
 
   if(customerAlreadyExists){
@@ -18,6 +21,7 @@ app.post("/account", (req, res) => {
     })
   }
 
+  // add o cliente
   customers.push({
     id: uuidV4(),
     name,
@@ -37,6 +41,7 @@ app.get("/statement",(req, res) => {
   return res.json(customer.statement)
 })
 
+//cria um deposito
 app.post("/deposit", (req, res) => {
   const {description, amount} = req.body
 
@@ -47,6 +52,28 @@ app.post("/deposit", (req, res) => {
     amount,
     created_at: new Date(),
     type: "credito",
+  }
+
+  customer.statement.push(statementOperation)
+
+  return res.status(201).send()
+})
+
+//saque
+app.post("/withdraw", (req, res) => {
+  const { customer } = req
+  const { amount } = req.body
+  
+  const balance = getBalance(customer.statement)
+
+  if(balance < amount) {
+    return res.status(400).send({error: 'Dinheiro insuficiente'})
+  }
+
+  const statementOperation = {
+    amount,
+    created_at: new Date(),
+    type: 'debit '
   }
 
   customer.statement.push(statementOperation)
